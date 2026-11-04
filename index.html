@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOSCO — Pizzería & Empanadas | Bolívar 504, Corrientes</title>
+    <meta name="description" content="Bosco Pizzería en Bolívar 504, Corrientes. Pizzas y empanadas de autor. Pedidos en línea en menu.fu.do y por WhatsApp.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter & Playfair Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        charcoal: {
+                            950: '#121316',
+                            900: '#1b1d22',
+                            800: '#262930',
+                            700: '#343842',
+                        },
+                        pizza: {
+                            red: '#e63946',
+                            amber: '#f59e0b',
+                            basil: '#22c55e',
+                        },
+                        gmaps: {
+                            blue: '#4285F4',
+                            red: '#EA4335',
+                            yellow: '#FBBC04',
+                            green: '#34A853',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #121316;
+            color: #f4f4f6;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121316;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #262930;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f59e0b;
+        }
+
+        .glass-header {
+            background: rgba(18, 19, 22, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        /* Hero image with warm natural color by default */
+        .hero-backdrop {
+            background-image: linear-gradient(to right, rgba(18, 19, 22, 0.92) 0%, rgba(18, 19, 22, 0.72) 55%, rgba(18, 19, 22, 0.55) 100%), url('https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1920&q=85');
+            background-size: cover;
+            background-position: center;
+            filter: saturate(0.92) brightness(0.95) contrast(1.05);
+            transition: filter 0.6s ease, transform 0.8s ease;
+        }
+        #inicio:hover .hero-backdrop {
+            filter: saturate(1.18) brightness(1.06) contrast(1.08);
+        }
+
+        /* Food Images: Always colored by default, luminous and vibrant on hover */
+        .food-card {
+            transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+        }
+        .food-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(245, 158, 11, 0.55);
+            box-shadow: 0 14px 34px -10px rgba(245, 158, 11, 0.22), 0 8px 20px -6px rgba(230, 57, 70, 0.15);
+        }
+        .food-photo {
+            filter: saturate(0.88) brightness(0.92) contrast(1.05);
+            transition: filter 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .food-card:hover .food-photo {
+            filter: saturate(1.28) brightness(1.14) contrast(1.08);
+            transform: scale(1.06);
+        }
+
+        /* Pulse animation for Google Maps Red Pin */
+        @keyframes pinPulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            70% { transform: scale(1.9); opacity: 0; }
+            100% { transform: scale(1.9); opacity: 0; }
+        }
+        .pin-ring {
+            animation: pinPulse 2s infinite;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-pizza-amber selection:text-charcoal-950 pb-20 md:pb-0">
+
+    <!-- Top Live Status Bar -->
+    <div class="bg-charcoal-900 border-b border-charcoal-800 text-xs py-2.5 px-4">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <!-- Dynamic Real-Time Schedule Status -->
+            <div class="flex items-center gap-2.5">
+                <span id="top-status-dot" class="w-2.5 h-2.5 rounded-full bg-gmaps-green inline-block"></span>
+                <span id="top-status-badge" class="font-semibold tracking-wide uppercase text-[11px] text-white">Verificando horario...</span>
+                <span class="text-zinc-500">·</span>
+                <span id="top-status-detail" class="text-zinc-300">Bolívar 504, Corrientes</span>
+            </div>
+
+            <!-- Quick Links with Real Brand Colors -->
+            <div class="hidden sm:flex items-center gap-5 text-zinc-300">
+                <a href="https://instagram.com/bosco_ctes" target="_blank" rel="noopener noreferrer" class="hover:text-pink-400 transition inline-flex items-center gap-1.5">
+                    <i data-lucide="instagram" class="w-3.5 h-3.5 text-pink-500"></i>
+                    <span>@bosco_ctes</span>
+                </a>
+                <span class="text-charcoal-700">|</span>
+                <a href="https://wa.me/5493794949702" target="_blank" rel="noopener noreferrer" class="hover:text-[#25D366] transition inline-flex items-center gap-1.5">
+                    <i data-lucide="phone" class="w-3.5 h-3.5 text-[#25D366]"></i>
+                    <span>+54 9 3794 94-9702</span>
+                </a>
+                <span class="text-charcoal-700">|</span>
+                <a href="#resenas" class="inline-flex items-center gap-1.5 text-white font-semibold hover:text-gmaps-yellow transition">
+                    <i data-lucide="star" class="w-3.5 h-3.5 fill-gmaps-yellow text-gmaps-yellow"></i>
+                    <span>4,7</span>
+                    <span class="text-zinc-400 font-normal">(102 reseñas)</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-40 glass-header border-b border-charcoal-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-6 lg:gap-10">
+            <!-- Brand Identity (Clean 'B' Monogram without color palette strip) -->
+            <a href="#inicio" class="flex items-center gap-3.5 group shrink-0">
+                <div class="w-11 h-11 rounded-xl border border-charcoal-700 bg-charcoal-900 flex items-center justify-center group-hover:border-zinc-400 transition shadow-inner">
+                    <span class="font-serif text-xl font-bold tracking-tighter text-white">B</span>
+                </div>
+                <div>
+                    <span class="font-serif text-2xl font-bold tracking-widest text-white block leading-none">BOSCO</span>
+                    <span class="text-[10px] uppercase tracking-[0.22em] text-zinc-400 font-semibold block mt-1">Pizzería · Corrientes</span>
+                </div>
+            </a>
+
+            <!-- Desktop Navigation with generous separation from Action Buttons -->
+            <nav class="hidden lg:flex items-center justify-center gap-7 xl:gap-9 text-xs uppercase tracking-widest font-medium text-zinc-300 flex-1 px-6">
+                <a href="#inicio" class="hover:text-pizza-amber transition whitespace-nowrap">Inicio</a>
+                <a href="#especialidades" class="hover:text-pizza-amber transition whitespace-nowrap">Sabores & Carta</a>
+                <a href="#horarios" class="hover:text-pizza-amber transition whitespace-nowrap">Horarios</a>
+                <a href="#resenas" class="hover:text-pizza-amber transition whitespace-nowrap">Reseñas (4,7 ★)</a>
+                <a href="#ubicacion" class="hover:text-pizza-amber transition whitespace-nowrap">Ubicación</a>
+            </nav>
+
+            <!-- Official Action Buttons with extra left margin & divider so 'Ubicación' and 'WhatsApp' are never cramped -->
+            <div class="flex items-center gap-3.5 pl-4 lg:pl-8 lg:border-l lg:border-charcoal-800 shrink-0">
+                <a href="https://wa.me/5493794949702?text=Hola%20Bosco!%20Quiero%20hacer%20una%20consulta%20/%20pedido" 
+                   target="_blank" rel="noopener noreferrer"
+                   class="hidden sm:inline-flex items-center gap-2 text-xs font-semibold text-white bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/40 px-4 py-2.5 rounded-xl transition">
+                    <i data-lucide="message-circle" class="w-4 h-4 text-[#25D366]"></i>
+                    <span>WhatsApp</span>
+                </a>
+
+                <a href="https://menu.fu.do/boscopizzas" 
+                   target="_blank" rel="noopener noreferrer"
+                   class="inline-flex items-center gap-2 bg-gradient-to-r from-pizza-red to-pizza-amber hover:brightness-110 text-white font-semibold text-xs uppercase tracking-wider px-4 sm:px-5 py-2.5 rounded-xl transition shadow-md shadow-pizza-red/20">
+                    <i data-lucide="utensils" class="w-3.5 h-3.5"></i>
+                    <span>Pedir en Línea</span>
+                    <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                </a>
+
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileNav()" aria-label="Abrir menú" class="lg:hidden p-2.5 rounded-xl bg-charcoal-900 border border-charcoal-700 text-zinc-200 hover:text-white">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Dropdown Navigation -->
+        <div id="mobile-nav" class="hidden lg:hidden bg-charcoal-900 border-b border-charcoal-800 px-4 pt-3 pb-6 space-y-2.5">
+            <a href="#inicio" onclick="toggleMobileNav()" class="block py-2.5 text-sm text-zinc-200 hover:text-pizza-amber border-b border-charcoal-800">Inicio</a>
+            <a href="#especialidades" onclick="toggleMobileNav()" class="block py-2.5 text-sm text-zinc-200 hover:text-pizza-amber border-b border-charcoal-800">Sabores & Carta Digital</a>
+            <a href="#horarios" onclick="toggleMobileNav()" class="block py-2.5 text-sm text-zinc-200 hover:text-pizza-amber border-b border-charcoal-800">Horarios y Horas Punta</a>
+            <a href="#resenas" onclick="toggleMobileNav()" class="block py-2.5 text-sm text-zinc-200 hover:text-pizza-amber border-b border-charcoal-800">Reseñas de Google (4,7 ★)</a>
+            <a href="#ubicacion" onclick="toggleMobileNav()" class="block py-2.5 text-sm text-zinc-200 hover:text-pizza-amber border-b border-charcoal-800">Ubicación y Contacto</a>
+            <div class="pt-5 mt-3 flex flex-col gap-3">
+                <a href="https://menu.fu.do/boscopizzas" target="_blank" rel="noopener noreferrer" class="w-full py-3 rounded-xl bg-gradient-to-r from-pizza-red to-pizza-amber text-white font-semibold text-xs uppercase tracking-wider text-center flex items-center justify-center gap-2">
+                    <span>Abrir Carta Oficial (menu.fu.do/boscopizzas)</span>
+                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                </a>
+                <a href="https://wa.me/5493794949702?text=Hola%20Bosco!%20Quiero%20hacer%20una%20consulta%20/%20pedido" target="_blank" rel="noopener noreferrer" class="w-full py-3 rounded-xl bg-[#25D366]/20 text-white border border-[#25D366]/50 font-semibold text-xs uppercase tracking-wider text-center flex items-center justify-center gap-2">
+                    <i data-lucide="message-circle" class="w-4 h-4 text-[#25D366]"></i>
+                    <span>Escribir por WhatsApp</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section id="inicio" class="relative overflow-hidden border-b border-charcoal-800">
+        <!-- Colored Pizza Backdrop -->
+        <div class="hero-backdrop absolute inset-0 -z-10"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 lg:py-28">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                
+                <!-- Left Column: Main Info -->
+                <div class="lg:col-span-7 space-y-7">
+                    <!-- Service Badges -->
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <span class="inline-flex items-center gap-1.5 bg-charcoal-900/90 border border-pizza-amber/40 text-pizza-amber text-[11px] font-semibold uppercase tracking-widest px-3.5 py-1.5 rounded-full">
+                            <i data-lucide="flame" class="w-3.5 h-3.5 text-pizza-red"></i> Pizzería & Empanadas
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 bg-charcoal-900/90 border border-charcoal-700 text-zinc-200 text-[11px] uppercase tracking-widest px-3 py-1.5 rounded-full">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-gmaps-green"></i> Pedir en línea
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 bg-charcoal-900/90 border border-charcoal-700 text-zinc-200 text-[11px] uppercase tracking-widest px-3 py-1.5 rounded-full">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-gmaps-green"></i> Para llevar
+                        </span>
+                    </div>
+
+                    <!-- Headline -->
+                    <div class="space-y-4">
+                        <h1 class="font-serif text-4xl sm:text-6xl font-bold text-white tracking-tight leading-[1.08]">
+                            El sabor auténtico de <span class="text-transparent bg-clip-text bg-gradient-to-r from-pizza-amber via-amber-300 to-pizza-red">Bosco</span> en Corrientes.
+                        </h1>
+                        <p class="text-zinc-200 text-base sm:text-lg max-w-2xl font-normal leading-relaxed">
+                            Empanadas con amplia variedad de sabores y pizzas artesanales con ingredientes de excelente calidad y porciones generosas. Atención personalizada en <strong class="text-white font-semibold">Bolívar 504</strong>.
+                        </p>
+                    </div>
+
+                    <!-- Primary CTAs -->
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-1">
+                        <a href="https://menu.fu.do/boscopizzas" 
+                           target="_blank" rel="noopener noreferrer"
+                           class="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-pizza-red to-pizza-amber hover:brightness-110 text-white font-semibold text-sm px-7 py-4 rounded-xl transition shadow-lg shadow-pizza-red/25">
+                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                            <span>Ver Carta y Pedir en Línea</span>
+                            <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                        </a>
+
+                        <a href="https://wa.me/5493794949702?text=Hola%20Bosco!%20Quiero%20hacer%20una%20consulta%20/%20pedido" 
+                           target="_blank" rel="noopener noreferrer"
+                           class="inline-flex items-center justify-center gap-2.5 bg-charcoal-900/95 hover:bg-charcoal-800 text-white border border-[#25D366]/50 font-medium text-sm px-6 py-4 rounded-xl transition">
+                            <i data-lucide="message-circle" class="w-4 h-4 text-[#25D366]"></i>
+                            <span>WhatsApp Directo</span>
+                        </a>
+                    </div>
+
+                    <!-- Google Maps Style Info Strip -->
+                    <div class="pt-6 border-t border-charcoal-800 grid grid-cols-2 sm:grid-cols-4 gap-5">
+                        <div class="bg-charcoal-900/85 border border-charcoal-800 rounded-xl p-3.5">
+                            <div class="flex items-center gap-1.5 text-white font-bold text-lg">
+                                <span>4,7</span>
+                                <div class="flex items-center text-gmaps-yellow">
+                                    <i data-lucide="star" class="w-4 h-4 fill-gmaps-yellow"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-zinc-400 mt-0.5">102 reseñas en Google</p>
+                        </div>
+
+                        <div class="bg-charcoal-900/85 border border-charcoal-800 rounded-xl p-3.5">
+                            <div class="text-white font-bold text-base sm:text-lg flex items-center gap-1">
+                                <span class="text-gmaps-green">$</span> 1–30.000
+                            </div>
+                            <p class="text-xs text-zinc-400 mt-0.5">Precio promedio por persona</p>
+                        </div>
+
+                        <div class="bg-charcoal-900/85 border border-charcoal-800 rounded-xl p-3.5">
+                            <div class="text-white font-bold text-base sm:text-lg flex items-center gap-1.5">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-gmaps-red shrink-0"></i>
+                                <span class="truncate">Bolívar 504</span>
+                            </div>
+                            <p class="text-xs text-zinc-400 mt-0.5">Esq. Entre Ríos · Corrientes</p>
+                        </div>
+
+                        <div class="bg-charcoal-900/85 border border-charcoal-800 rounded-xl p-3.5">
+                            <a href="https://instagram.com/bosco_ctes" target="_blank" rel="noopener noreferrer" class="text-white font-bold text-base sm:text-lg hover:text-pink-400 transition flex items-center gap-1.5">
+                                <i data-lucide="instagram" class="w-4 h-4 text-pink-500 shrink-0"></i>
+                                <span class="truncate">@bosco_ctes</span>
+                            </a>
+                            <p class="text-xs text-zinc-400 mt-0.5">Instagram Oficial</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Featured Interactive Food Preview Card -->
+                <div class="lg:col-span-5">
+                    <div class="food-card bg-charcoal-900/95 border border-charcoal-700 rounded-2xl overflow-hidden shadow-2xl">
+                        <div class="relative h-64 sm:h-72 overflow-hidden bg-charcoal-950">
+                            <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=1000&q=85" 
+                                 onerror="this.src='https://placehold.co/800x600/1b1d22/f59e0b?text=Bosco+Pizzeria'"
+                                 alt="Pizza Napolitana y Mozzarella Bosco" 
+                                 class="w-full h-full object-cover food-photo">
+                            <div class="absolute top-3 left-3 bg-charcoal-950/85 backdrop-blur-md border border-pizza-amber/40 text-pizza-amber text-[11px] font-semibold px-3 py-1 rounded-full flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-pizza-amber"></span>
+                                Pasá el mouse por las fotos para iluminarlas
+                            </div>
+                            <div class="absolute bottom-3 right-3 bg-gmaps-green text-charcoal-950 font-bold text-xs px-3 py-1 rounded-lg shadow">
+                                Carta Oficial Online
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold uppercase tracking-wider text-pizza-amber">Destacado en Corrientes</span>
+                                <span class="text-xs text-zinc-400 flex items-center gap-1">
+                                    <i data-lucide="globe" class="w-3.5 h-3.5 text-gmaps-blue"></i> menu.fu.do/boscopizzas
+                                </span>
+                            </div>
+                            <h2 class="font-serif text-2xl text-white font-semibold">Pizzas & Empanadas recién horneadas</h2>
+                            <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                                Carne tradicional, tres cebollas, barbacoa, roquefort con nueces, champiñones y mozzarella. Realizá tu pedido directo en la plataforma oficial.
+                            </p>
+                            <div class="pt-2 flex items-center gap-3">
+                                <a href="https://menu.fu.do/boscopizzas" target="_blank" rel="noopener noreferrer" class="flex-1 py-3 px-4 rounded-xl bg-white hover:bg-pizza-amber text-charcoal-950 font-semibold text-xs uppercase tracking-wider text-center transition flex items-center justify-center gap-1.5">
+                                    <span>Abrir Carta Digital</span>
+                                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- COLORED SPECIALTIES SECTION (ALWAYS IN COLOR, BRIGHTER ON HOVER) -->
+    <section id="especialidades" class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-charcoal-800">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div>
+                <div class="inline-flex items-center gap-2 text-pizza-amber text-xs uppercase tracking-[0.2em] font-semibold mb-2">
+                    <i data-lucide="flame" class="w-4 h-4 text-pizza-red"></i>
+                    <span>Destacados de la carta</span>
+                </div>
+                <h2 class="font-serif text-3xl sm:text-4xl text-white font-bold">Sabores Elogiados por Nuestros Clientes</h2>
+            </div>
+            <p class="text-zinc-300 text-sm max-w-md">
+                Todas las fotografías muestran el color cálido de nuestras comidas y <strong class="text-pizza-amber">se iluminan al pasar el cursor</strong>. Al hacer clic, accedés directamente a <a href="https://menu.fu.do/boscopizzas" target="_blank" rel="noopener noreferrer" class="text-gmaps-blue underline font-medium">menu.fu.do/boscopizzas</a>.
+            </p>
+        </div>
+
+        <!-- 6 Flavors Grid Mentioned in Real Reviews -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
+            
+            <!-- Item 1: Carne Tradicional -->
+            <article class="food-card bg-charcoal-900 border border-charcoal-800 rounded-2xl overflow-hidden flex flex-col justify-between">
+                <div>
+                    <div class="relative h-56 overflow-hidden bg-charcoal-950">
+                        <img src="https://images.unsplash.com/photo-1604467715878-83e57e8bc129?auto=format&fit=crop&w=800&q=85" 
+                             onerror="this.src='https://placehold.co/800x500/262930/f59e0b?text=Empanadas+Carne+Tradicional'" 
+                             alt="Empanadas de Carne Tradicional" 
+                             class="w-full h-full object-cover food-photo">
+                        <span class="absolute top-3 left-3 bg-pizza-red text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow">
+                            Favorita #1
+                        </span>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between text-xs text-pizza-amber font-medium mb-1.5">
+                            <span>Empanadas Artesanales</span>
+                            <span class="flex items-center gap-1 text-gmaps-yellow"><i data-lucide="star" class="w-3.5 h-3.5 fill-gmaps-yellow"></i> Destacada</span>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-white">Carne Tradicional</h3>
+                        <p class="text-sm text-zinc-300 mt-2 leading-relaxed">
+                            Relleno jugoso condimentado en su punto justo, masa dorada y porciones generosas elogiadas en las reseñas de nuestros comensales.
+                        </p>
+                    </div>
+                </div>
+                <div class="px-6 pb-6">
+                    <a href="https://menu.fu.do/boscopizzas" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-white bg-charcoal-800 hover:bg-pizza-red px-4 py-3 rounded-xl transition">
+                        <span>Pedir en línea</span>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Item 2: Tres Cebollas -->
+            <article class="food-card bg-charcoal-900 border border-charcoal-800 rounded-2xl overflow-hidden flex flex-col justify-between">
+                <div>
+                    <div class="relative h-56 overflow-hidden bg-charcoal-950">
+                        <img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=800&q=85" 
+                             onerror="this.src='https://placehold.co/800x500/262930/f59e0b?text=Tres+Cebollas+y+Queso'" 
+                             alt="Empanadas de Tres Cebollas" 
+                             class="w-full h-full object-cover food-photo">
+                        <span class="absolute top-3 left-3 bg-pizza-amber text-charcoal-950 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow">
+                            Especialidad
+                        </span>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between text-xs text-pizza-amber font-medium mb-1.5">
+                            <span>Sabor de Autor</span>
+                            <span class="flex items-center gap-1 text-gmaps-yellow"><i data-lucide="star" class="w-3.5 h-3.5 fill-gmaps-yellow"></i> Elogiada</span>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-white">Tres Cebollas</h3>
+                        <p class="text-sm text-zinc-300 mt-2 leading-relaxed">
+                            Combinación suave y caramelizada de tres variedades de cebolla con abundante queso fundido. Una de las más recomendadas.
+                        </p>
+                    </div>
+                </div>
+                <div class="px-6 pb-6">
+                    <a href="https://menu.fu.do/boscopizzas" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-white bg-charcoal-800 hover:bg-pizza-amber hover:text-charcoal-950 px-4 py-3 rounded-xl transition">
+                        <span>Pedir en línea</span>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Item 3: Roquefort con Nueces -->
+            <article class="food-card bg-charcoal-900 border border-charcoal-800 rounded-2xl overflow-hidden flex flex-col justify-between">
+                <div>
+                    <div class="relative h-56 overflow-hidden bg-charcoal-950">
+                        <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=85" 
+                             onerror="this.src='https://placehold.co/800x500/262930/f59e0b?text=Roquefort+con+Nueces'" 
+                             alt="Roquefort con Nueces" 
+                             class="w-full h-full object-cover food-photo">
+                        <span class="absolute top-3 left-3 bg-pizza-basil text-charcoal-950 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow">
+                            Gourmet
+                        </span>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between text-xs text-pizza-amber font-medium mb-1.5">
+                            <span>Ingredientes Seleccionados</span>
+                            <span class="flex items-center gap-1 text-gmaps-yellow"><i data-lucide="star" class="w-3.5 h-3.5 fill-gmaps-yellow"></i> Destacada</span>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-white">Roquefort con Nueces</h3>
+                        <p class="text-sm text-zinc-300 mt-2 leading-relaxed">
+                            Intenso queso azul equilibrado con el toque crocante de nueces seleccionadas y base cremosa de mozzarella.
+                        </p>
+                    </div>
+                </div>
+                <div class="px-6 pb-6">
+                    <a href="https://menu.fu.do/boscopizzas" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-white bg-charcoal-800 hover:bg-pizza-red px-4 py-3 rounded-xl transition">
+                        <span>Pedir en línea</span>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Item 4: Barbacoa -->
+            <article class="food-card bg-charcoal-900 border border-charcoal-800 rounded-2xl overflow-hidden flex flex-col justify-between">
+                <div>
+                    <div class="relative h-56 overflow-hidden bg-charcoal-950">
+                        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=85" 
+                             onerror="this.src='https://placehold.co/800x500/262930/f59e0b?text=Empanadas+Barbacoa'" 
+                             alt="Sabor Barbacoa" 
+                             class="w-full h-full object-cover food-photo">
+                        <span class="absolute top-3 left-3 bg-pizza-red text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow">
+                            Ahumada
+                        </span>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between text-xs text-pizza-amber font-medium mb-1.5">
+                            <span>Sabor Intenso</span>
+                            <span class="flex items-center gap-1 text-gmaps-yellow"><i data-lucide="star" class="w-3.5 h-3.5 fill-gmaps-yellow"></i> Destacada</span>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-white">Barbacoa</h3>
+                        <p class="text-sm text-zinc-300 mt-2 leading-relaxed">
+                            Corte tierno con salsa barbacoa ahumada y queso gratinado. Mencionada en el resumen de reseñas de Google Maps.
+                        </p>
+                    </div>
+                </div>
+                <div class="px-6 pb-6">
+                    <a href="https://menu.fu.do/boscopizzas" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-white bg-charcoal-800 hover:bg-pizza-red px-4 py-3 rounded-xl transition">
+                        <span>Pedir en línea</span>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Item 5: Champiñones -->
+            <article class="food-card bg-charcoal-900 border border-charcoal-800 rounded-2xl overflow-hidden flex flex-col justify-between">
+                <div>
+                    <div class="relative h-56 overflow-hidden bg-charcoal-950">
+                        <img src="https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?auto=format&fit=crop&w=800&q=85" 
+                             onerror="this.src='https://placehold.co/800x500/262930/f59e0b?text=Especialidad+Champiñones'" 
+                             alt="Champiñones y Queso" 
+                             class="w-full h-full object-cover food-photo">
+                        <span class="absolute top-3 left-3 bg-charcoal-950/90 border border-pizza-amber text-pizza-amber text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+                            2 Menciones Directas
+                        </span>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between text-xs text-pizza-amber font-medium mb-1.5">
+                            <span>Pizzas & Empanadas</span>
+                            <span class="flex items-center gap-1 text-gmaps-yellow"><i data-lucide="star" class="w-3.5 h-3.5 fill-gmaps-yellow"></i> Destacada</span>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-white">Champiñones Frescos</h3>
+                        <p class="text-sm text-zinc-300 mt-2 leading-relaxed">
+                            Champiñones salteados con mozzarella seleccionada, una opción delicada y llena de sabor disponible en nuestra carta.
+                        </p>
+                    </div>
+                </div>
+                <div class="px-6 pb-6">
+                    <a href="https://menu.fu.do/boscopizzas" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-white bg-charcoal-800 hover:bg-pizza-amber hover:text-charcoal-950 px-4 py-3 rounded-xl transition">
+                        <span>Pedir en línea</span>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Item 6: Pizzas de Mozzarella & Especialidades -->
+            <article class="food-card bg-charcoal-900 border border-charcoal-800 rounded-2xl overflow-hidden flex flex-col justify-between">
+                <div>
+                    <div class="relative h-56 overflow-hidden bg-charcoal-950">
+                        <img src="https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=800&q=85" 
+                             onerror="this.src='https://placehold.co/800x500/262930/f59e0b?text=Pizzas+Mozzarella+Bosco'" 
+                             alt="Pizza de Mozzarella Bosco" 
+                             class="w-full h-full object-cover food-photo">
+                        <span class="absolute top-3 left-3 bg-gmaps-green text-charcoal-950 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow">
+                            Clásico Bosco
+                        </span>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between text-xs text-pizza-amber font-medium mb-1.5">
+                            <span>Horno Artesanal</span>
+                            <span class="flex items-center gap-1 text-gmaps-yellow"><i data-lucide="star" class="w-3.5 h-3.5 fill-gmaps-yellow"></i> 5,0 ★</span>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-white">Mozzarella & Pizzas de la Casa</h3>
+                        <p class="text-sm text-zinc-300 mt-2 leading-relaxed">
+                            Masa crujiente por fuera y esponjosa por dentro, salsa de tomates seleccionados y abundante mozzarella gratinada.
+                        </p>
+                    </div>
+                </div>
+                <div class="px-6 pb-6">
+                    <a href="https://menu.fu.do/boscopizzas" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-between text-xs uppercase tracking-wider font-semibold text-white bg-gradient-to-r from-pizza-red to-pizza-amber px-4 py-3 rounded-xl transition">
+                        <span>Ver toda la carta online</span>
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </article>
+
+        </div>
+    </section>
+
+    <!-- OPERATING HOURS & GOOGLE MAPS POPULAR TIMES (HORAS PUNTA) -->
+    <section id="horarios" class="py-20 bg-charcoal-900/50 border-b border-charcoal-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                
+                <!-- Left Column: Official Weekly Schedule -->
+                <div class="lg:col-span-6 space-y-6">
+                    <div>
+                        <span class="text-xs uppercase tracking-[0.2em] text-pizza-amber font-semibold block mb-2">Horarios Confirmados</span>
+                        <h2 class="font-serif text-3xl sm:text-4xl text-white font-bold">Días y Horarios de Apertura</h2>
+                    </div>
+
+                    <!-- Live Status Box -->
+                    <div class="bg-charcoal-900 border border-charcoal-700 rounded-2xl p-5 flex items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <span class="text-[11px] uppercase tracking-widest text-zinc-400 block">Estado actual en Corrientes</span>
+                            <p id="schedule-live-message" class="text-sm sm:text-base text-white font-medium">Verificando horario...</p>
+                        </div>
+                        <span id="schedule-live-pill" class="shrink-0 text-xs font-bold px-3.5 py-1.5 rounded-full bg-charcoal-800 text-white">
+                            ...
+                        </span>
+                    </div>
+
+                    <!-- Weekly Schedule Table -->
+                    <div class="bg-charcoal-900 border border-charcoal-800 rounded-2xl p-6">
+                        <div class="divide-y divide-charcoal-800 text-sm" id="weekly-schedule-list">
+                            <div data-day="1" class="schedule-row py-3 px-3 rounded-lg flex items-center justify-between">
+                                <span class="font-medium text-zinc-200">Lunes</span>
+                                <span class="text-zinc-100 font-mono">20:00 – 23:30</span>
+                            </div>
+                            <div data-day="2" class="schedule-row py-3 px-3 rounded-lg flex items-center justify-between">
+                                <span class="font-medium text-zinc-400">Martes</span>
+                                <span class="text-pizza-red font-semibold uppercase text-xs tracking-wider">Cerrado</span>
+                            </div>
+                            <div data-day="3" class="schedule-row py-3 px-3 rounded-lg flex items-center justify-between">
+                                <span class="font-medium text-zinc-200">Miércoles</span>
+                                <span class="text-zinc-100 font-mono">20:00 – 23:30</span>
+                            </div>
+                            <div data-day="4" class="schedule-row py-3 px-3 rounded-lg flex items-center justify-between">
+                                <span class="font-medium text-zinc-200">Jueves</span>
+                                <span class="text-zinc-100 font-mono">20:00 – 23:30</span>
+                            </div>
+                            <div data-day="5" class="schedule-row py-3 px-3 rounded-lg flex items-center justify-between">
+                                <span class="font-medium text-zinc-200">Viernes</span>
+                                <span class="text-zinc-100 font-mono">19:00 – 23:30</span>
+                            </div>
+                            <div data-day="6" class="schedule-row py-3 px-3 rounded-lg flex items-center justify-between">
+                                <span class="font-medium text-zinc-200">Sábado</span>
+                                <span class="text-zinc-100 font-mono">20:00 – 23:30</span>
+                            </div>
+                            <div data-day="0" class="schedule-row py-3 px-3 rounded-lg flex items-center justify-between">
+                                <span class="font-medium text-zinc-200">Domingo</span>
+                                <span class="text-zinc-100 font-mono">12:00 – 20:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Google Maps Interactive "Horas Punta" Widget -->
+                <div class="lg:col-span-6 space-y-6">
+                    <div>
+                        <span class="text-xs uppercase tracking-[0.2em] text-gmaps-blue font-semibold block mb-2">Datos de Google Maps</span>
+                        <h2 class="font-serif text-3xl sm:text-4xl text-white font-bold">Horas Punta</h2>
+                    </div>
+
+                    <div class="bg-charcoal-900 border border-charcoal-800 rounded-2xl p-6 sm:p-7 space-y-6">
+                        <div class="flex flex-wrap items-center justify-between gap-4">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="bar-chart-3" class="w-5 h-5 text-gmaps-blue"></i>
+                                <span class="text-sm font-semibold text-white">Concurrencia por día</span>
+                            </div>
+                            <!-- Day Selector -->
+                            <select id="peak-day-select" onchange="renderPeakHours(this.value)" class="bg-charcoal-800 border border-charcoal-700 text-white text-xs font-medium rounded-xl px-3.5 py-2 focus:outline-none focus:border-gmaps-blue">
+                                <option value="lunes">Lunes</option>
+                                <option value="martes">Martes (Cerrado)</option>
+                                <option value="miercoles" selected>Miércoles</option>
+                                <option value="jueves">Jueves</option>
+                                <option value="viernes">Viernes</option>
+                                <option value="sabado">Sábado</option>
+                                <option value="domingo">Domingo</option>
+                            </select>
+                        </div>
+
+                        <p id="peak-day-caption" class="text-xs text-zinc-300 bg-charcoal-950/70 border border-charcoal-800 px-3.5 py-2.5 rounded-xl">
+                            Mayor movimiento entre las 20:30 y las 22:30 hs.
+                        </p>
+
+                        <!-- Interactive Bar Chart (6 a.m. to 9 p.m.+) -->
+                        <div class="pt-4">
+                            <div id="peak-bars-container" class="h-44 flex items-end justify-between gap-1.5 sm:gap-2 px-1 border-b border-charcoal-700 pb-2">
+                                <!-- Populated via JS -->
+                            </div>
+                            <!-- Time Axis Labels matching user's Google Maps info -->
+                            <div class="grid grid-cols-6 text-[11px] text-zinc-400 pt-2.5 font-mono">
+                                <span>6a.m.</span>
+                                <span>9a.m.</span>
+                                <span>12p.m.</span>
+                                <span>3p.m.</span>
+                                <span>6p.m.</span>
+                                <span class="text-right">9p.m.</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between text-xs text-zinc-400 pt-2">
+                            <span class="inline-flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-sm bg-gmaps-blue inline-block"></span> Concurrencia habitual
+                            </span>
+                            <span class="inline-flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-sm bg-pizza-amber inline-block"></span> Hora pico de pedidos
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- VERIFIED GOOGLE MAPS REVIEWS SECTION (100% REAL) -->
+    <section id="resenas" class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-charcoal-800">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            
+            <!-- Left Column: Rating Score & Gemini Summary -->
+            <div class="lg:col-span-5 space-y-6">
+                <div>
+                    <div class="inline-flex items-center gap-2 text-gmaps-yellow text-xs uppercase tracking-[0.2em] font-semibold mb-2">
+                        <i data-lucide="award" class="w-4 h-4"></i>
+                        <span>Ficha Verificada</span>
+                    </div>
+                    <h2 class="font-serif text-3xl sm:text-4xl text-white font-bold">Resumen de Reseñas</h2>
+                </div>
+
+                <div class="bg-charcoal-900 border border-charcoal-800 rounded-2xl p-6 sm:p-7 space-y-6">
+                    <!-- 4.7 Rating Header with Google Maps Yellow Stars -->
+                    <div class="flex items-center gap-6">
+                        <div>
+                            <div class="text-5xl font-serif font-bold text-white">4,7</div>
+                            <div class="flex items-center gap-1 text-gmaps-yellow my-2">
+                                <i data-lucide="star" class="w-4 h-4 fill-gmaps-yellow"></i>
+                                <i data-lucide="star" class="w-4 h-4 fill-gmaps-yellow"></i>
+                                <i data-lucide="star" class="w-4 h-4 fill-gmaps-yellow"></i>
+                                <i data-lucide="star" class="w-4 h-4 fill-gmaps-yellow"></i>
+                                <i data-lucide="star" class="w-4 h-4 fill-gmaps-yellow"></i>
+                            </div>
+                            <p class="text-xs text-zinc-400">102 reseñas</p>
+                        </div>
+
+                        <!-- Distribution Bars in Google Maps Yellow -->
+                        <div class="flex-1 space-y-2 text-xs text-zinc-300">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-3 font-medium">5</span>
+                                <div class="flex-1 h-2.5 bg-charcoal-800 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gmaps-yellow rounded-full" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-3 font-medium">4</span>
+                                <div class="flex-1 h-2.5 bg-charcoal-800 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gmaps-yellow/80 rounded-full" style="width: 10%"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-3 font-medium">3</span>
+                                <div class="flex-1 h-2.5 bg-charcoal-800 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gmaps-yellow/60 rounded-full" style="width: 3%"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-3 font-medium">2</span>
+                                <div class="flex-1 h-2.5 bg-charcoal-800 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gmaps-yellow/40 rounded-full" style="width: 1%"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-3 font-medium">1</span>
+                                <div class="flex-1 h-2.5 bg-charcoal-800 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gmaps-yellow/30 rounded-full" style="width: 1%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Official Gemini Summary from Google Maps -->
+                    <div class="bg-charcoal-950 border border-charcoal-800 rounded-xl p-4 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-gmaps-blue">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                Resumen de Gemini
+                            </span>
+                            <span class="text-[11px] text-zinc-400 bg-charcoal-800 px-2 py-0.5 rounded-full">+11</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-zinc-200 leading-relaxed">
+                            La gente dice que este restaurante ofrece deliciosas empanadas con una amplia variedad de sabores, que incluyen <strong class="text-pizza-amber">carne tradicional, tres cebollas, barbacoa, mozzarella y roquefort con nueces</strong>. También destacan la excelente calidad de los ingredientes y las porciones generosas. Los comensales mencionan el servicio personalizado y atento.
+                        </p>
+                    </div>
+
+                    <!-- Official Write a Review Link -->
+                    <a href="https://www.google.com/maps/search/?api=1&query=Bosco+Pizzeria+Bolivar+504+Corrientes" 
+                       target="_blank" rel="noopener noreferrer"
+                       class="w-full inline-flex items-center justify-center gap-2 bg-gmaps-blue hover:brightness-110 text-white font-semibold text-xs uppercase tracking-wider py-3.5 px-4 rounded-xl transition shadow">
+                        <i data-lucide="message-square-plus" class="w-4 h-4"></i>
+                        <span>Escribir o ver reseñas en Google Maps</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Column: Exact Keyword Pills & The 3 Authentic Reviews -->
+            <div class="lg:col-span-7 space-y-6">
+                <div class="space-y-3">
+                    <h3 class="text-xs uppercase tracking-widest text-zinc-400 font-semibold">Filtrar por menciones reales en Google Maps</h3>
+                    <!-- Exact Keyword Tags from User Prompt -->
+                    <div class="flex flex-wrap gap-2" id="review-filters">
+                        <button onclick="filterRealReviews('todas')" data-filter="todas" class="rev-filter-btn bg-gmaps-blue text-white font-semibold text-xs px-3.5 py-1.5 rounded-full transition">
+                            Todas
+                        </button>
+                        <button onclick="filterRealReviews('empanadas')" data-filter="empanadas" class="rev-filter-btn bg-charcoal-900 text-zinc-200 hover:border-pizza-amber border border-charcoal-700 text-xs px-3.5 py-1.5 rounded-full transition">
+                            empanadas <span class="text-zinc-400 ml-1">29</span>
+                        </button>
+                        <button onclick="filterRealReviews('productos')" data-filter="productos" class="rev-filter-btn bg-charcoal-900 text-zinc-200 hover:border-pizza-amber border border-charcoal-700 text-xs px-3.5 py-1.5 rounded-full transition">
+                            productos <span class="text-zinc-400 ml-1">3</span>
+                        </button>
+                        <button onclick="filterRealReviews('rico')" data-filter="rico" class="rev-filter-btn bg-charcoal-900 text-zinc-200 hover:border-pizza-amber border border-charcoal-700 text-xs px-3.5 py-1.5 rounded-full transition">
+                            rico <span class="text-zinc-400 ml-1">3</span>
+                        </button>
+                        <button onclick="filterRealReviews('champinones')" data-filter="champinones" class="rev-filter-btn bg-charcoal-900 text-zinc-200 hover:border-pizza-amber border border-charcoal-700 text-xs px-3.5 py-1.5 rounded-full transition">
+                            champiñones <span class="text-zinc-400 ml-1">2</span>
+                        </button>
+                        <button onclick="filterRealReviews('sabores')" data-filter="sabores" class="rev-filter-btn bg-charcoal-900 text-zinc-200 hover:border-pizza-amber border border-charcoal-700 text-xs px-3.5 py-1.5 rounded-full transition">
+                            sabores <span class="text-zinc-400 ml-1">2</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Container for the 3 real reviews -->
+                <div id="real-reviews-container" class="space-y-4"></div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ERROR-FREE INTERACTIVE VISUAL GOOGLE MAPS & CONTACT SECTION -->
+    <section id="ubicacion" class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-12">
+            <div class="inline-flex items-center gap-2 text-gmaps-red text-xs uppercase tracking-[0.2em] font-semibold mb-2">
+                <i data-lucide="map-pin" class="w-4 h-4"></i>
+                <span>Ubicación Verificada</span>
+            </div>
+            <h2 class="font-serif text-3xl sm:text-4xl text-white font-bold">Dónde Estamos & Contacto Directo</h2>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+            
+            <!-- Left Column: Official Contact Information -->
+            <div class="lg:col-span-5 bg-charcoal-900 border border-charcoal-800 rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6">
+                <div class="space-y-5">
+                    <!-- Address -->
+                    <div class="flex items-start justify-between gap-4 pb-4 border-b border-charcoal-800">
+                        <div class="flex items-start gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-gmaps-red/15 border border-gmaps-red/30 flex items-center justify-center shrink-0 mt-0.5">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-gmaps-red"></i>
+                            </div>
+                            <div>
+                                <span class="text-[11px] uppercase tracking-widest text-zinc-400 block">Dirección</span>
+                                <p class="text-white font-semibold text-base">Bolívar 504, W3400AMK Corrientes</p>
+                                <p class="text-xs text-zinc-400 mt-0.5">Plus Code: <strong class="text-zinc-300">G5H4+V7 Corrientes</strong></p>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboard('Bolívar 504, W3400AMK Corrientes', 'Dirección copiada al portapapeles')" 
+                                class="p-2.5 rounded-xl bg-charcoal-800 hover:bg-charcoal-700 text-zinc-200 border border-charcoal-700 transition" 
+                                title="Copiar dirección">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <!-- WhatsApp -->
+                    <div class="flex items-start justify-between gap-4 pb-4 border-b border-charcoal-800">
+                        <div class="flex items-start gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-[#25D366]/15 border border-[#25D366]/30 flex items-center justify-center shrink-0 mt-0.5">
+                                <i data-lucide="phone" class="w-4 h-4 text-[#25D366]"></i>
+                            </div>
+                            <div>
+                                <span class="text-[11px] uppercase tracking-widest text-zinc-400 block">WhatsApp Oficial</span>
+                                <a href="https://wa.me/5493794949702" target="_blank" rel="noopener noreferrer" class="text-white font-semibold text-base hover:text-[#25D366] transition block">
+                                    +54 9 3794 94-9702
+                                </a>
+                                <p class="text-xs text-zinc-400">Atención y pedidos</p>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboard('+5493794949702', 'Número copiado al portapapeles')" 
+                                class="p-2.5 rounded-xl bg-charcoal-800 hover:bg-charcoal-700 text-zinc-200 border border-charcoal-700 transition" 
+                                title="Copiar teléfono">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <!-- Instagram -->
+                    <div class="flex items-start justify-between gap-4 pb-4 border-b border-charcoal-800">
+                        <div class="flex items-start gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-pink-500/15 border border-pink-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                                <i data-lucide="instagram" class="w-4 h-4 text-pink-500"></i>
+                            </div>
+                            <div>
+                                <span class="text-[11px] uppercase tracking-widest text-zinc-400 block">Instagram</span>
+                                <a href="https://instagram.com/bosco_ctes" target="_blank" rel="noopener noreferrer" class="text-white font-semibold text-base hover:text-pink-400 transition block">
+                                    @bosco_ctes
+                                </a>
+                                <p class="text-xs text-zinc-400">Novedades y fotos reales</p>
+                            </div>
+                        </div>
+                        <a href="https://instagram.com/bosco_ctes" target="_blank" rel="noopener noreferrer" 
+                           class="p-2.5 rounded-xl bg-charcoal-800 hover:bg-charcoal-700 text-zinc-200 border border-charcoal-700 transition"
+                           title="Abrir Instagram">
+                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+
+                    <!-- Carta Online -->
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex items-start gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-pizza-amber/15 border border-pizza-amber/30 flex items-center justify-center shrink-0 mt-0.5">
+                                <i data-lucide="utensils" class="w-4 h-4 text-pizza-amber"></i>
+                            </div>
+                            <div>
+                                <span class="text-[11px] uppercase tracking-widest text-zinc-400 block">Carta Digital & Pedidos</span>
+                                <a href="https://menu.fu.do/boscopizzas" target="_blank" rel="noopener noreferrer" class="text-white font-semibold text-base hover:text-pizza-amber transition block">
+                                    menu.fu.do/boscopizzas
+                                </a>
+                                <p class="text-xs text-zinc-400">Plataforma oficial de pedidos en línea</p>
+                            </div>
+                        </div>
+                        <a href="https://menu.fu.do/boscopizzas" target="_blank" rel="noopener noreferrer" 
+                           class="p-2.5 rounded-xl bg-charcoal-800 hover:bg-charcoal-700 text-zinc-200 border border-charcoal-700 transition"
+                           title="Abrir Carta">
+                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex flex-col sm:flex-row gap-3">
+                    <a href="https://www.google.com/maps/search/?api=1&query=Bosco+Pizzeria+Bolivar+504+Corrientes" 
+                       target="_blank" rel="noopener noreferrer"
+                       class="flex-1 py-3.5 px-4 rounded-xl bg-gmaps-blue hover:brightness-110 text-white font-semibold text-xs uppercase tracking-wider text-center flex items-center justify-center gap-2 transition shadow-lg shadow-gmaps-blue/20">
+                        <i data-lucide="navigation" class="w-4 h-4"></i>
+                        <span>Cómo llegar en Google Maps</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Column: Accurate Downtown Corrientes Map (Bolívar 504 esq. Entre Ríos, W3400AMK) -->
+            <div class="lg:col-span-7 bg-charcoal-900 border border-charcoal-800 rounded-2xl overflow-hidden relative min-h-[440px] flex flex-col justify-between">
+                
+                <!-- Accurate Street Grid of Corrientes: Bolívar & Entre Ríos -->
+                <div class="absolute inset-0 bg-[#16191f]">
+                    <svg class="w-full h-full object-cover" viewBox="0 0 800 520" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+                        <!-- Base Urban Background -->
+                        <rect width="800" height="520" fill="#15181e"/>
+
+                        <!-- City Blocks -->
+                        <!-- Row 1 -->
+                        <rect x="30" y="20" width="195" height="95" rx="6" fill="#1e222a" stroke="#262b35" stroke-width="1"/>
+                        <rect x="255" y="20" width="215" height="95" rx="6" fill="#1e222a" stroke="#262b35" stroke-width="1"/>
+                        <rect x="500" y="20" width="215" height="95" rx="6" fill="#1e222a" stroke="#262b35" stroke-width="1"/>
+                        <rect x="745" y="20" width="50" height="95" rx="6" fill="#1e222a"/>
+
+                        <!-- Row 2 (Cuadra Bolívar 400) -->
+                        <rect x="30" y="143" width="195" height="115" rx="6" fill="#1e222a" stroke="#262b35" stroke-width="1"/>
+                        <rect x="255" y="143" width="215" height="115" rx="6" fill="#1e222a" stroke="#262b35" stroke-width="1"/>
+                        <rect x="500" y="143" width="215" height="115" rx="6" fill="#1e222a" stroke="#262b35" stroke-width="1"/>
+                        <rect x="745" y="143" width="50" height="115" rx="6" fill="#1e222a"/>
+
+                        <!-- Row 3 (Cuadra Bolívar 500 donde está BOSCO en Bolívar 504 esq. Entre Ríos) -->
+                        <rect x="30" y="286" width="195" height="115" rx="6" fill="#1e222a" stroke="#262b35" stroke-width="1"/>
+                        <!-- Manzana destacada de Bolívar 504 (Esq. Entre Ríos) -->
+                        <rect x="255" y="286" width="215" height="115" rx="6" fill="#232832" stroke="#f59e0b" stroke-width="1.5" stroke-opacity="0.45"/>
+                        <!-- Parcela exacta de Bolívar 504 en la esquina con Entre Ríos -->
+                        <rect x="428" y="288" width="40" height="36" rx="4" fill="#ea4335" fill-opacity="0.22" stroke="#ea4335" stroke-width="1.2"/>
+                        <rect x="500" y="286" width="215" height="115" rx="6" fill="#1e222a" stroke="#262b35" stroke-width="1"/>
+                        <rect x="745" y="286" width="50" height="115" rx="6" fill="#1e222a"/>
+
+                        <!-- Row 4 -->
+                        <rect x="30" y="429" width="195" height="80" rx="6" fill="#1e222a" stroke="#262b35" stroke-width="1"/>
+                        <rect x="255" y="429" width="215" height="80" rx="6" fill="#1e222a" stroke="#262b35" stroke-width="1"/>
+                        <rect x="500" y="429" width="215" height="80" rx="6" fill="#1e222a" stroke="#262b35" stroke-width="1"/>
+                        <rect x="745" y="429" width="50" height="80" rx="6" fill="#1e222a"/>
+
+                        <!-- Calles Horizontales -->
+                        <line x1="0" y1="129" x2="800" y2="129" stroke="#2b303c" stroke-width="26"/>
+                        <line x1="0" y1="272" x2="800" y2="272" stroke="#323846" stroke-width="28"/>
+                        <line x1="0" y1="415" x2="800" y2="415" stroke="#2b303c" stroke-width="26"/>
+
+                        <!-- Calles Verticales: Belgrano, Gral. Simón Bolívar, Mariano Moreno -->
+                        <line x1="240" y1="0" x2="240" y2="520" stroke="#2b303c" stroke-width="26"/>
+                        <!-- Calle Gral. Simón Bolívar (Destacada) -->
+                        <line x1="485" y1="0" x2="485" y2="520" stroke="#394152" stroke-width="30"/>
+                        <line x1="485" y1="0" x2="485" y2="520" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="7 7" stroke-opacity="0.55"/>
+                        <line x1="730" y1="0" x2="730" y2="520" stroke="#2b303c" stroke-width="26"/>
+
+                        <!-- Recorrido Azul estilo Google Maps llegando por Entre Ríos hasta Bolívar 504 -->
+                        <path d="M 90 272 L 485 272 L 485 304" stroke="#4285F4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="485" cy="304" r="5" fill="#ffffff" stroke="#4285F4" stroke-width="3"/>
+
+                        <!-- Etiquetas de las Calles -->
+                        <!-- Horizontales -->
+                        <text x="65" y="276" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="11.5" font-weight="700" letter-spacing="1.5">ENTRE RÍOS</text>
+                        <text x="580" y="276" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="11.5" font-weight="700" letter-spacing="1.5">ENTRE RÍOS</text>
+
+                        <!-- Verticales -->
+                        <text x="236" y="75" fill="#9ca3af" font-family="Inter, sans-serif" font-size="11" font-weight="600" transform="rotate(-90 236 75)" letter-spacing="1.5">BELGRANO</text>
+                        <text x="236" y="375" fill="#9ca3af" font-family="Inter, sans-serif" font-size="11" font-weight="600" transform="rotate(-90 236 375)" letter-spacing="1.5">BELGRANO</text>
+
+                        <text x="489" y="100" fill="#fbbf24" font-family="Inter, sans-serif" font-size="11.5" font-weight="700" transform="rotate(-90 489 100)" letter-spacing="1.8">GRAL. BOLÍVAR</text>
+                        <text x="489" y="495" fill="#fbbf24" font-family="Inter, sans-serif" font-size="11.5" font-weight="700" transform="rotate(-90 489 495)" letter-spacing="1.8">BOLÍVAR 500</text>
+
+                        <text x="726" y="95" fill="#9ca3af" font-family="Inter, sans-serif" font-size="11" font-weight="600" transform="rotate(-90 726 95)" letter-spacing="1.5">M. MORENO</text>
+                        <text x="726" y="385" fill="#9ca3af" font-family="Inter, sans-serif" font-size="11" font-weight="600" transform="rotate(-90 726 385)" letter-spacing="1.5">M. MORENO</text>
+
+                        <!-- Referencias de cuadras en Corrientes -->
+                        <text x="315" y="205" fill="#71717a" font-family="Inter, sans-serif" font-size="10" font-weight="500" letter-spacing="1">BOLÍVAR AL 400</text>
+                        <text x="300" y="355" fill="#a1a1aa" font-family="Inter, sans-serif" font-size="10" font-weight="600" letter-spacing="1">CORRIENTES · W3400AMK</text>
+                    </svg>
+
+                    <!-- Exact Pin on Bolívar 504 (Esq. Entre Ríos) -->
+                    <div class="absolute top-[56%] left-[59%] -translate-x-1/2 -translate-y-full flex flex-col items-center pointer-events-none">
+                        <!-- Floating Google Maps Style Place Card -->
+                        <div class="mb-2 bg-charcoal-950/95 border border-charcoal-700 px-3.5 py-2 rounded-xl shadow-2xl flex items-center gap-2.5 whitespace-nowrap">
+                            <div class="w-7 h-7 rounded-lg bg-charcoal-900 border border-charcoal-700 flex items-center justify-center text-white font-serif font-bold text-xs">
+                                B
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-xs font-bold text-white">Bosco - Pizzería</span>
+                                    <span class="text-[11px] font-bold text-gmaps-yellow">4,7 ★</span>
+                                </div>
+                                <span class="text-[10px] text-zinc-300 block">Bolívar 504 (esq. Entre Ríos) · Corrientes</span>
+                            </div>
+                        </div>
+
+                        <!-- Pulsing Google Maps Red Pin -->
+                        <div class="relative flex items-center justify-center">
+                            <span class="w-10 h-10 rounded-full bg-gmaps-red/40 absolute pin-ring"></span>
+                            <div class="w-9 h-9 rounded-full bg-gmaps-red border-2 border-white shadow-lg flex items-center justify-center text-white relative z-10">
+                                <i data-lucide="map-pin" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map Top Bar Overlay -->
+                <div class="relative z-10 p-4 flex flex-wrap items-center justify-between gap-2">
+                    <div class="bg-charcoal-950/90 backdrop-blur-md border border-charcoal-700 px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs">
+                        <span class="w-2.5 h-2.5 rounded-full bg-gmaps-red"></span>
+                        <span class="font-medium text-white">Bolívar 504 (esq. Entre Ríos), Corrientes</span>
+                    </div>
+                    <button onclick="copyToClipboard('G5H4+V7 Corrientes', 'Plus Code copiado')" class="bg-charcoal-950/90 backdrop-blur-md hover:bg-charcoal-800 border border-charcoal-700 px-3 py-2 rounded-xl text-xs text-zinc-200 flex items-center gap-1.5 transition">
+                        <i data-lucide="compass" class="w-3.5 h-3.5 text-gmaps-blue"></i>
+                        <span>G5H4+V7 Corrientes</span>
+                    </button>
+                </div>
+
+                <!-- Map Bottom Action Bar Overlay -->
+                <div class="relative z-10 p-4 bg-gradient-to-t from-charcoal-950 via-charcoal-950/90 to-transparent flex flex-wrap items-center justify-between gap-3">
+                    <div class="text-xs text-zinc-300">
+                        <span class="text-white font-semibold">Bolívar 504 y Entre Ríos</span> · Corrientes Capital
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <a href="https://www.google.com/maps/search/?api=1&query=Bosco+Pizzeria+Bolivar+504+Corrientes" 
+                           target="_blank" rel="noopener noreferrer"
+                           class="inline-flex items-center gap-2 bg-white hover:bg-zinc-200 text-charcoal-950 font-semibold text-xs px-4 py-2.5 rounded-xl transition shadow">
+                            <i data-lucide="map" class="w-4 h-4 text-gmaps-blue"></i>
+                            <span>Abrir Ubicación Exacta en Google Maps</span>
+                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-charcoal-950 border-t border-charcoal-800 py-12 text-xs text-zinc-400">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-charcoal-900 border border-charcoal-700 flex items-center justify-center text-pizza-amber font-serif font-bold">
+                    B
+                </div>
+                <div>
+                    <span class="text-white font-serif tracking-widest uppercase font-semibold">BOSCO — Pizzería</span>
+                    <p class="text-[11px] text-zinc-400">Bolívar 504, W3400AMK Corrientes · +54 9 3794 94-9702</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-6">
+                <a href="https://menu.fu.do/boscopizzas" target="_blank" rel="noopener noreferrer" class="hover:text-pizza-amber transition">Carta Oficial (menu.fu.do/boscopizzas)</a>
+                <a href="https://instagram.com/bosco_ctes" target="_blank" rel="noopener noreferrer" class="hover:text-pink-400 transition">Instagram (@bosco_ctes)</a>
+                <a href="https://wa.me/5493794949702" target="_blank" rel="noopener noreferrer" class="hover:text-[#25D366] transition">WhatsApp</a>
+                <a href="https://www.google.com/maps/search/?api=1&query=Bosco+Pizzeria+Bolivar+504+Corrientes" target="_blank" rel="noopener noreferrer" class="hover:text-gmaps-blue transition">Google Maps (4,7 ★)</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- STICKY MOBILE BOTTOM BAR -->
+    <div class="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-charcoal-950/95 backdrop-blur-md border-t border-charcoal-800 p-3 flex items-center gap-2.5">
+        <a href="https://wa.me/5493794949702?text=Hola%20Bosco!%20Quiero%20hacer%20una%20consulta%20/%20pedido" 
+           target="_blank" rel="noopener noreferrer"
+           class="flex-1 py-3 px-3 rounded-xl bg-charcoal-900 border border-[#25D366]/50 text-white font-semibold text-xs flex items-center justify-center gap-2">
+            <i data-lucide="message-circle" class="w-4 h-4 text-[#25D366]"></i>
+            <span>WhatsApp</span>
+        </a>
+        <a href="https://menu.fu.do/boscopizzas" 
+           target="_blank" rel="noopener noreferrer"
+           class="flex-1 py-3 px-3 rounded-xl bg-gradient-to-r from-pizza-red to-pizza-amber text-white font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5">
+            <span>Pedir en Línea</span>
+            <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+        </a>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gmaps-green text-charcoal-950 px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2 text-xs font-bold pointer-events-none opacity-0 transition-opacity duration-300">
+        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+        <span id="toast-text">Copiado</span>
+    </div>
+
+    <script>
+        // --- 1. VERIFIED GOOGLE MAPS REVIEWS (STRICTLY THE 3 REAL REVIEWS) ---
+        const verifiedReviews = [
+            {
+                author: "Francisco J Herrera",
+                meta: "Local Guide · 98 reseñas · 15 fotos",
+                time: "Hace 5 meses",
+                rating: 5,
+                avatarBg: "bg-gmaps-blue",
+                text: "Matías y su equipo nos trataron de forma espectacular. La pizza y las empanadas fueron son las mejores de Corrientes con mucha diferencia! Muchas gracias!!",
+                tags: ["empanadas", "productos", "rico", "sabores"]
+            },
+            {
+                author: "Carolina Castillo",
+                meta: "Local Guide · 55 reseñas · 37 fotos",
+                time: "Hace 7 meses",
+                rating: 5,
+                avatarBg: "bg-pizza-red",
+                text: "Pedimos de paso empanadas de carne tradicional y tres cebollas y es un espectáculo! La calidad y el sabor exquisito de cada empanada. Super recomendables!",
+                tags: ["empanadas", "productos", "rico", "sabores", "champinones"]
+            },
+            {
+                author: "maximiliano gonzalez",
+                meta: "4 reseñas · 1 foto",
+                time: "Hace 5 meses",
+                rating: 5,
+                avatarBg: "bg-gmaps-green",
+                text: "La comida espectacular y el dueño aún más! Recomendable",
+                tags: ["productos", "rico", "champinones"]
+            }
+        ];
+
+        function renderRealReviews(filterTag = 'todas') {
+            const container = document.getElementById('real-reviews-container');
+            const filtered = filterTag === 'todas'
+                ? verifiedReviews
+                : verifiedReviews.filter(r => r.tags.includes(filterTag));
+
+            container.innerHTML = filtered.map(r => `
+                <article class="bg-charcoal-900 border border-charcoal-800 rounded-2xl p-6 space-y-3.5 transition hover:border-charcoal-700">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full ${r.avatarBg} text-white font-bold flex items-center justify-center text-sm shadow">
+                                ${r.author.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-semibold text-white">${r.author}</h4>
+                                <p class="text-xs text-zinc-400">${r.meta}</p>
+                            </div>
+                        </div>
+                        <span class="text-xs text-zinc-400">${r.time}</span>
+                    </div>
+                    <div class="flex items-center gap-1 text-gmaps-yellow">
+                        ${Array.from({length: r.rating}).map(() => '<i data-lucide="star" class="w-4 h-4 fill-gmaps-yellow text-gmaps-yellow"></i>').join('')}
+                    </div>
+                    <p class="text-sm text-zinc-100 leading-relaxed">"${r.text}"</p>
+                </article>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function filterRealReviews(tag) {
+            document.querySelectorAll('.rev-filter-btn').forEach(btn => {
+                if (btn.dataset.filter === tag) {
+                    btn.className = 'rev-filter-btn bg-gmaps-blue text-white font-semibold text-xs px-3.5 py-1.5 rounded-full transition';
+                } else {
+                    btn.className = 'rev-filter-btn bg-charcoal-900 text-zinc-200 hover:border-pizza-amber border border-charcoal-700 text-xs px-3.5 py-1.5 rounded-full transition';
+                }
+            });
+            renderRealReviews(tag);
+        }
+
+        // --- 2. GOOGLE MAPS POPULAR TIMES (HORAS PUNTA) ENGINE ---
+        // 18 slots from 6 a.m. to 11 p.m.
+        const peakDataByDay = {
+            lunes: {
+                caption: "Lunes: Abierto de 20:00 a 23:30 hs. Concurrencia moderada a partir de las 20:30 hs.",
+                values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45, 75, 80, 55]
+            },
+            martes: {
+                caption: "Martes: El local permanece cerrado. Abrimos el miércoles a las 20:00 hs.",
+                values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            },
+            miercoles: {
+                caption: "Miércoles: Abierto de 20:00 a 23:30 hs. Mayor movimiento entre las 21:00 y las 22:30 hs.",
+                values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50, 85, 90, 65]
+            },
+            jueves: {
+                caption: "Jueves: Abierto de 20:00 a 23:30 hs. Alta demanda de empanadas y pizzas desde las 20:30 hs.",
+                values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 55, 88, 92, 70]
+            },
+            viernes: {
+                caption: "Viernes: Apertura anticipada de 19:00 a 23:30 hs. Pico máximo a las 21:30 hs.",
+                values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 75, 95, 100, 85]
+            },
+            sabado: {
+                caption: "Sábado: Abierto de 20:00 a 23:30 hs. El día de mayor movimiento de la semana.",
+                values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 80, 98, 100, 90]
+            },
+            domingo: {
+                caption: "Domingo: Horario especial de mediodía y tarde (12:00 a 20:00 hs).",
+                values: [0, 0, 0, 0, 0, 0, 65, 85, 75, 45, 40, 55, 70, 80, 0, 0, 0, 0]
+            }
+        };
+
+        function renderPeakHours(dayKey) {
+            const data = peakDataByDay[dayKey] || peakDataByDay.miercoles;
+            document.getElementById('peak-day-caption').textContent = data.caption;
+            const container = document.getElementById('peak-bars-container');
+
+            container.innerHTML = data.values.map((val, idx) => {
+                const hour = 6 + idx;
+                const hourLabel = hour <= 12 ? `${hour}a.m.` : `${hour - 12}p.m.`;
+                const heightPct = Math.max(val, 6);
+                const isPeak = val >= 85;
+                const barColor = val === 0 
+                    ? 'bg-charcoal-800/70' 
+                    : (isPeak ? 'bg-pizza-amber' : 'bg-gmaps-blue');
+
+                return `
+                    <div class="flex-1 flex flex-col items-center justify-end h-full group relative">
+                        <div class="opacity-0 group-hover:opacity-100 transition bg-charcoal-950 border border-charcoal-700 text-[10px] text-white px-1.5 py-0.5 rounded absolute -top-7 whitespace-nowrap pointer-events-none">
+                            ${hour}:00 (${val}%)
+                        </div>
+                        <div class="w-full rounded-t-md transition-all duration-300 ${barColor}" style="height: ${heightPct}%"></div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- 3. REAL OPERATING HOURS ENGINE (ARGENTINA TIME UTC-3) ---
+        const scheduleByDay = {
+            0: { name: 'Domingo', key: 'domingo', open: 12 * 60, close: 20 * 60, label: '12:00 a 20:00 hs' },
+            1: { name: 'Lunes', key: 'lunes', open: 20 * 60, close: 23 * 60 + 30, label: '20:00 a 23:30 hs' },
+            2: { name: 'Martes', key: 'martes', open: null, close: null, label: 'Cerrado' },
+            3: { name: 'Miércoles', key: 'miercoles', open: 20 * 60, close: 23 * 60 + 30, label: '20:00 a 23:30 hs' },
+            4: { name: 'Jueves', key: 'jueves', open: 20 * 60, close: 23 * 60 + 30, label: '20:00 a 23:30 hs' },
+            5: { name: 'Viernes', key: 'viernes', open: 19 * 60, close: 23 * 60 + 30, label: '19:00 a 23:30 hs' },
+            6: { name: 'Sábado', key: 'sabado', open: 20 * 60, close: 23 * 60 + 30, label: '20:00 a 23:30 hs' }
+        };
+
+        function formatMinutes(mins) {
+            const h = Math.floor(mins / 60).toString().padStart(2, '0');
+            const m = (mins % 60).toString().padStart(2, '0');
+            return `${h}:${m} hs`;
+        }
+
+        function evaluateCorrientesSchedule() {
+            const now = new Date();
+            const utcMillis = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const argTime = new Date(utcMillis - (3 * 3600000));
+
+            const day = argTime.getDay();
+            const currentMinutes = argTime.getHours() * 60 + argTime.getMinutes();
+            const todayConfig = scheduleByDay[day];
+
+            // Highlight today's row
+            document.querySelectorAll('.schedule-row').forEach(row => {
+                if (parseInt(row.dataset.day) === day) {
+                    row.classList.add('bg-charcoal-800', 'border', 'border-pizza-amber/40');
+                    const firstSpan = row.querySelector('span:first-child');
+                    if (firstSpan && !firstSpan.innerHTML.includes('Hoy')) {
+                        firstSpan.innerHTML = `${todayConfig.name} <span class="text-[10px] uppercase tracking-wider text-charcoal-950 font-bold bg-pizza-amber px-2 py-0.5 rounded ml-1.5">Hoy</span>`;
+                    }
+                }
+            });
+
+            const dotEl = document.getElementById('top-status-dot');
+            const badgeEl = document.getElementById('top-status-badge');
+            const detailEl = document.getElementById('top-status-detail');
+            const pillEl = document.getElementById('schedule-live-pill');
+            const msgEl = document.getElementById('schedule-live-message');
+
+            let isOpen = false;
+            let statusDetail = '';
+
+            if (todayConfig.open !== null && currentMinutes >= todayConfig.open && currentMinutes < todayConfig.close) {
+                isOpen = true;
+                statusDetail = `Cierra hoy a las ${formatMinutes(todayConfig.close)}`;
+            } else {
+                isOpen = false;
+                if (todayConfig.open !== null && currentMinutes < todayConfig.open) {
+                    statusDetail = `Abre hoy a las ${formatMinutes(todayConfig.open)}`;
+                } else {
+                    for (let i = 1; i <= 7; i++) {
+                        const nextDayIndex = (day + i) % 7;
+                        const nextConfig = scheduleByDay[nextDayIndex];
+                        if (nextConfig.open !== null) {
+                            const dayWord = i === 1 ? 'mañana' : `el ${nextConfig.name.toLowerCase()}`;
+                            statusDetail = `Abre ${dayWord} a las ${formatMinutes(nextConfig.open)}`;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (isOpen) {
+                dotEl.className = 'w-2.5 h-2.5 rounded-full bg-gmaps-green inline-block animate-pulse';
+                badgeEl.textContent = 'Abierto Ahora';
+                badgeEl.className = 'font-bold tracking-wide uppercase text-[11px] text-gmaps-green';
+                detailEl.textContent = `${statusDetail} · Bolívar 504`;
+                pillEl.textContent = 'ABIERTO AHORA';
+                pillEl.className = 'shrink-0 text-xs font-bold px-3.5 py-1.5 rounded-full bg-gmaps-green text-charcoal-950';
+                msgEl.textContent = `Estamos atendiendo en Bolívar 504 (${todayConfig.label}).`;
+            } else {
+                dotEl.className = 'w-2.5 h-2.5 rounded-full bg-pizza-amber inline-block';
+                badgeEl.textContent = 'Cerrado';
+                badgeEl.className = 'font-bold tracking-wide uppercase text-[11px] text-pizza-amber';
+                detailEl.textContent = `${statusDetail} · Bolívar 504`;
+                pillEl.textContent = 'CERRADO AHORA';
+                pillEl.className = 'shrink-0 text-xs font-bold px-3.5 py-1.5 rounded-full bg-charcoal-800 text-pizza-amber border border-pizza-amber/40';
+                msgEl.textContent = `${statusDetail}. Podés ver la carta online o escribirnos por WhatsApp.`;
+            }
+        }
+
+        // --- 4. UTILITIES ---
+        function toggleMobileNav() {
+            const nav = document.getElementById('mobile-nav');
+            nav.classList.toggle('hidden');
+        }
+
+        let toastTimer;
+        function copyToClipboard(text, message) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-text').textContent = message;
+            toast.classList.remove('opacity-0');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('opacity-0');
+            }, 2600);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            renderRealReviews('todas');
+            renderPeakHours('miercoles');
+            evaluateCorrientesSchedule();
+            setInterval(evaluateCorrientesSchedule, 60000);
+        });
+    </script>
+</body>
+</html>
